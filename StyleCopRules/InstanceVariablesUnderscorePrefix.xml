@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<SourceAnalyzer Name="Rus Wizards C# Rules">
+  <Description>
+    These custom rules provide extensions to the ones provided with StyleCop by Rus Wizards.
+  </Description>
+  <Rules>
+    <Rule Name="InstanceVariablesUnderscorePrefix" CheckId="RW0001">
+      <Context>Instance variables should be prefixed by underscore and folloed by lower case.</Context>
+      <Description>Instance variables are easier to distinguish when prefixed with an underscore.</Description>
+    </Rule>
+  </Rules>
+</SourceAnalyzer>
