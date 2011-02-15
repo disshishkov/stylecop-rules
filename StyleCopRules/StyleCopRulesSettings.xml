@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <SourceAnalyzer Name="Rus Wizards C# Rules">
   <Description>
-    These custom rules provide extensions to the ones provided with StyleCop by Rus Wizards.
+    These custom rules provide extensions to the ones provided with StyleCop by Rus Wizards company.
   </Description>
   <Rules>
     <Rule Name="InstanceVariablesUnderscorePrefix" CheckId="RW0001">
