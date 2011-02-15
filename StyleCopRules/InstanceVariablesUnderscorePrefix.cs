@@ -1,47 +1,79 @@
 ﻿namespace StyleCopRules
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using Microsoft.StyleCop;
     using Microsoft.StyleCop.CSharp;
 
     /// <summary>
     /// This StyleCop Rule makes sure that instance variables are prefixed with an underscore.
     /// </summary>
-    [SourceAnalyzer(typeof(CsParser))]
+    [SourceAnalyzer(typeof(CsParser), "StyleCopRulesSettings.xml")]
     public sealed class InstanceVariablesUnderscorePrefix : SourceAnalyzer
     {
+        /// <summary>
+        /// Temp ssdf.
+        /// </summary>
+        private Int16 temp;
+
         /// <summary>
         /// Analyzes the document.
         /// </summary>
         /// <param name="document">The document.</param>
         public override void AnalyzeDocument(CodeDocument document)
-        {
-            CsDocument csdocument = (CsDocument)document;
-            if (csdocument.RootElement != null && !csdocument.RootElement.Generated)
+        {            
+            CsDocument csDocument = (CsDocument)document;
+            if (csDocument.RootElement != null && !csDocument.RootElement.Generated)
             {
-                csdocument.WalkDocument(new CodeWalkerElementVisitor<Object>(this.VisitElement), null, null);
+                this.ProcessElement(csDocument.RootElement);
             }
         }
 
         /// <summary>
-        /// Visits the element.
+        /// Processes the C# element.
         /// </summary>
-        /// <param name="element">The element.</param>
-        /// <param name="parentElement">The parent element.</param>
-        /// <param name="context">The context.</param>
-        /// <returns>True if elemnt was visited.</returns>
-        private Boolean VisitElement(CsElement element, CsElement parentElement, Object context)
+        /// <param name="element">The C# element.</param>
+        /// <returns>
+        /// <c>True</c> if element was processed; otherwise, <c>false</c>.
+        /// </returns>
+        private Boolean ProcessElement(CsElement element)
         {
+            if (this.Cancel)
+            {
+                return false;
+            }
+
             // Flag a violation if the instance variables are not prefixed with an underscore.
-            if (!element.Generated && element.ElementType == ElementType.Field && element.ActualAccess != AccessModifierType.Public 
-                && element.ActualAccess != AccessModifierType.Internal && element.Declaration.Name.ToCharArray()[0] != '_')
+            String elementName = element.Declaration.Name;
+            if (element.ElementType == ElementType.Field
+                && !element.Generated
+                && this.IsPrivateAccess(element.AccessModifier)
+                && (!elementName.StartsWith("_", StringComparison.Ordinal)
+                    || (elementName.Length > 2 && elementName.Substring(1, 1).ToLower() != elementName.Substring(1, 1))))
             {
                 this.AddViolation(element, "InstanceVariablesUnderscorePrefix");
             }
+
+            foreach (CsElement child in element.ChildElements)
+            {
+                if (!this.ProcessElement(child))
+                {
+                    return false;
+                }
+            }
+
             return true;
+        }
+
+        /// <summary>
+        /// Determines whether is private access.
+        /// </summary>
+        /// <param name="type">The access modifier type.</param>
+        /// <returns>
+        /// <c>True</c> if is private access; otherwise, <c>false</c>.
+        /// </returns>
+        private Boolean IsPrivateAccess(AccessModifierType type)
+        {
+            return (type == AccessModifierType.Private || type == AccessModifierType.Protected || type == AccessModifierType.ProtectedInternal);
         }
     }
 }
