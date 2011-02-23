@@ -46,11 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InstanceVariablesUnderscorePrefix.cs" />
+    <Compile Include="RusWizardsRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rules.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="StyleCopRulesSettings.xml">
+    <EmbeddedResource Include="RusWizardsRules.xml">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>

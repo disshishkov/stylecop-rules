@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<SourceAnalyzer Name="Rus Wizards C# Rules">
+    <Description>
+        These custom rules provide extensions to the ones provided with StyleCop by Rus Wizards company.
+    </Description>
+    <Rules>
+        <Rule Name="InstanceVariablesUnderscorePrefix" CheckId="RW0001">
+            <Context>Instance variables should be prefixed by underscore and folloed by lower case: {0}.</Context>
+            <Description>Instance variables are easier to distinguish when prefixed with an underscore.</Description>
+        </Rule>
+        <Rule Name="UseClassNameOrThis" CheckId="RW0002">
+            <Context>Instance variables should be started by class name or "this": {0}.</Context>
+            <Description>For better intellesecne instance variables shuld be started by class name or "this".</Description>
+        </Rule>
+        <Rule Name="DoNotUseLinqAliases" CheckId="RW0003">
+            <Context>Don't use linq aliases.</Context>
+            <Description>Linq aliases cann't resolve all necessitis and make worse a code-view.</Description>
+        </Rule>
+        <Rule Name="MinimumFieldLength" CheckId="RW0004">
+            <Context>Minimum fiels length should be 2 symbols: {0}.</Context>
+            <Description>Not allowed very short names for fields.</Description>
+        </Rule>
+    </Rules>
+</SourceAnalyzer>
