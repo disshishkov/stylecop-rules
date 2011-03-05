@@ -11,6 +11,32 @@
     [SourceAnalyzer(typeof(CsParser))]
     public sealed class RusWizardsRules : SourceAnalyzer
     {
+        #region Private Static Constants
+
+        /// <summary>
+        /// The built-in type aliases for C#.
+        /// </summary>
+        private readonly String[][] _builtInTypes = new String[][]
+        {
+            new String[] { "Boolean", "System.Boolean", "bool" },
+            new String[] { "Object", "System.Object", "object" },
+            new String[] { "String", "System.String", "string" },
+            new String[] { "Int16", "System.Int16", "short" },
+            new String[] { "UInt16", "System.UInt16", "ushort" },
+            new String[] { "Int32", "System.Int32", "int" },
+            new String[] { "UInt32", "System.UInt32", "uint" },
+            new String[] { "Int64", "System.Int64", "long" },
+            new String[] { "UInt64", "System.UInt64", "ulong" },
+            new String[] { "Double", "System.Double", "double" },
+            new String[] { "Single", "System.Single", "float" },
+            new String[] { "Byte", "System.Byte", "byte" },
+            new String[] { "SByte", "System.SByte", "sbyte" },
+            new String[] { "Char", "System.Char", "char" },
+            new String[] { "Decimal", "System.Decimal", "decimal" }
+        };
+
+        #endregion Private Static Constants
+
         /// <summary>
         /// Analyzes the document.
         /// </summary>
@@ -21,6 +47,8 @@
             if (csDocument.RootElement != null && !csDocument.RootElement.Generated)
             {
                 csDocument.WalkDocument<Object>(new CodeWalkerElementVisitor<Object>(this.ProcessElement), null, new CodeWalkerExpressionVisitor<Object>(this.ProcessExpression), null);
+
+                this.IterateTokenList(csDocument);
                 //this.ProcessElement(csDocument.RootElement);                
             }
         }
@@ -199,7 +227,7 @@
                 {
                     if (linqAliases.Contains(token.CsTokenType))
                     {
-                        this.AddViolation(element, Rules.DoNotUseLinqAliases);
+                        this.AddViolation(element, token.LineNumber, Rules.DoNotUseLinqAliases);
                     }
                 }
             }
@@ -233,6 +261,86 @@
             return (type == ElementType.Class || type == ElementType.Delegate || type == ElementType.Enum 
                 || type == ElementType.Event || type == ElementType.Field || type == ElementType.Interface || type == ElementType.Method
                 || type == ElementType.Namespace || type == ElementType.Property || type == ElementType.Struct);
+        }
+
+        /// <summary>
+        /// Checks the built-in types and empty strings within a document.
+        /// </summary>
+        /// <param name="document">The document containing the tokens.</param>
+        private void IterateTokenList(CsDocument document)
+        {
+            for (Node<CsToken> tokenNode = document.Tokens.First; tokenNode != null; tokenNode = tokenNode.Next)
+            {
+                CsToken token = tokenNode.Value;
+
+                if (token.CsTokenClass == CsTokenClass.Type || token.CsTokenClass == CsTokenClass.GenericType)
+                {
+                    // Check that the type is using the built-in types, if applicable.
+                    this.CheckBuiltInType(tokenNode, document);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks a type to determine whether it should use one of the built-in types.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <param name="document">The parent document.</param>
+        private void CheckBuiltInType(Node<CsToken> type, CsDocument document)
+        {
+            TypeToken typeToken = (TypeToken)type.Value;
+
+            if (typeToken.CsTokenClass != CsTokenClass.GenericType && typeToken.CsTokenType != CsTokenType.Enum)
+            {
+                for (Int32 i = 0; i < this._builtInTypes.Length; i++)
+                {
+                    String[] builtInType = this._builtInTypes[i];
+
+                    if (CsTokenList.MatchTokens(typeToken.ChildTokens.First, builtInType[2]))
+                    {
+                        // If the previous token is an equals sign, then this is a using alias directive. For example:
+                        // using SomeAlias = System.String;
+                        Boolean usingAliasDirective = false;
+                        for (Node<CsToken> previous = type.Previous; previous != null; previous = previous.Previous)
+                        {
+                            if (previous.Value.CsTokenType != CsTokenType.EndOfLine 
+                                && previous.Value.CsTokenType != CsTokenType.MultiLineComment 
+                                && previous.Value.CsTokenType != CsTokenType.SingleLineComment 
+                                && previous.Value.CsTokenType != CsTokenType.WhiteSpace)
+                            {
+                                if (previous.Value.Text == "=")
+                                {
+                                    usingAliasDirective = true;
+                                }
+
+                                break;
+                            }
+                        }
+
+                        if (!usingAliasDirective)
+                        {
+                            this.AddViolation(
+                                typeToken.FindParentElement(),
+                                typeToken.LineNumber,
+                                Rules.DoNotUseBuiltInTypeAliases,
+                                builtInType[0],
+                                builtInType[1],
+                                builtInType[2]);
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            for (Node<CsToken> childToken = typeToken.ChildTokens.First; childToken != null; childToken = childToken.Next)
+            {
+                if (childToken.Value.CsTokenClass == CsTokenClass.Type
+                    || childToken.Value.CsTokenClass == CsTokenClass.GenericType)
+                {
+                    this.CheckBuiltInType(childToken, document);
+                }
+            }
         }
     }
 }
