@@ -3,6 +3,7 @@
     using System;
     using Microsoft.StyleCop;
     using Microsoft.StyleCop.CSharp;
+    using System.Collections.Generic;
 
     /// <summary>
     /// This StyleCop Rule makes sure that instance variables are prefixed with an underscore.
@@ -26,32 +27,35 @@
 
         private Boolean ProcessExpression(Expression expression, Expression parentExpression, Statement parentStatement, CsElement parentElement, Object context)
         {
-            if (!parentElement.Generated && this.IsLocalElementType(parentElement.ElementType) 
-                /*&& parentStatement.StatementType == StatementType.Expression*/
-                && ((expression.ExpressionType == ExpressionType.Literal && parentStatement.StatementType == StatementType.Return)
-                    || (expression.ExpressionType == ExpressionType.Literal && parentStatement.StatementType == StatementType.Yield))
-                && !parentElement.Declaration.ContainsModifier(new CsTokenType[] { CsTokenType.Static, CsTokenType.Const }))
-            {                
-                //if (expression.ExpressionType == ExpressionType.MemberAccess || expression.ExpressionType == ExpressionType.MethodInvocation)
-                if (parentExpression == null || parentExpression.ExpressionType != ExpressionType.MemberAccess)
-                {
-                    for (Node<CsToken> node = parentElement.Tokens.First; node != null; node = node.Next)
-                    {
-                        if (node.Value.Text != "this")
-                        {
-                            this.AddViolation(parentElement, Rules.UseClassNameOrThis, parentElement.Declaration.Name);
-                        }
-                    }
+            //if (!parentElement.Generated && this.IsLocalElementType(parentElement.ElementType) 
+            //    /*&& parentStatement.StatementType == StatementType.Expression*/
+            //    && ((expression.ExpressionType == ExpressionType.Literal && parentStatement.StatementType == StatementType.Return)
+            //        || (expression.ExpressionType == ExpressionType.Literal && parentStatement.StatementType == StatementType.Yield))
+            //    && !parentElement.Declaration.ContainsModifier(new CsTokenType[] { CsTokenType.Static, CsTokenType.Const }))
+            //{                
+            //    //if (expression.ExpressionType == ExpressionType.MemberAccess || expression.ExpressionType == ExpressionType.MethodInvocation)
+            //    if (parentExpression == null || parentExpression.ExpressionType != ExpressionType.MemberAccess)
+            //    {
+            //        for (Node<CsToken> node = parentElement.Tokens.First; node != null; node = node.Next)
+            //        {
+            //            if (node.Value.Text != "this")
+            //            {
+            //                this.AddViolation(parentElement, Rules.UseClassNameOrThis, parentElement.Declaration.Name);
+            //            }
+            //        }
 
-                    /*foreach (CsToken token in expression.Tokens)
-                    {
-                        if (token.CsTokenType != CsTokenType.This)
-                        {
-                            this.AddViolation(parentElement, Rules.UseClassNameOrThis, parentElement.Declaration.Name);
-                        }
-                    }*/
-                }
-            }
+            //        /*foreach (CsToken token in expression.Tokens)
+            //        {
+            //            if (token.CsTokenType != CsTokenType.This)
+            //            {
+            //                this.AddViolation(parentElement, Rules.UseClassNameOrThis, parentElement.Declaration.Name);
+            //            }
+            //        }*/
+            //    }
+            //}
+            this.CheckDoNotUseLinqAliases(parentElement, expression);
+            //this.CheckUseClassNameOrThis(parentElement, expression);
+
             return true;
         }
 
@@ -59,8 +63,10 @@
         /// Processes the C# element.
         /// </summary>
         /// <param name="element">The C# element.</param>
+        /// <param name="parentElement">The parent element.</param>
+        /// <param name="context">The context.</param>
         /// <returns>
-        /// <c>True</c> if element was processed; otherwise, <c>false</c>.
+        ///  <c>True</c> if element was processed; otherwise, <c>false</c>.
         /// </returns>
         private Boolean ProcessElement(CsElement element, CsElement parentElement, Object context)
         {
@@ -70,8 +76,6 @@
             }                        
             
             this.CheckInstanceVariablesUnderscorePrefix(element);
-            //this.CheckUseClassNameOrThis(element);
-            this.CheckDoNotUseLinqAliases(element);
             this.CheckMinimumFieldLength(element);
 
             foreach (CsElement child in element.ChildElements)
@@ -118,27 +122,34 @@
         /// Checks the rule: use class name or "this".
         /// </summary>
         /// <param name="element">The C# element.</param>
-        private void CheckUseClassNameOrThis(CsElement element)
-        {            
-            if (!element.Generated && this.IsLocalElementType(element.ElementType)
-                && !element.Declaration.ContainsModifier(new CsTokenType[] { CsTokenType.Static, CsTokenType.Const }))
+        /// <param name="expression">The expression.</param>
+        private void CheckUseClassNameOrThis(CsElement element, Expression expression)
+        {
+            if (!element.Generated 
+                && (expression.ExpressionType == ExpressionType.MemberAccess || expression.ExpressionType == ExpressionType.MethodInvocation) 
+                && expression.Tokens.First.Value.CsTokenType != CsTokenType.This)
             {
-                //Expression expression = element.FindParentExpression();
-                //if (expression != null && expression.ExpressionType == ExpressionType.MemberAccess || expression.ExpressionType == ExpressionType.MethodInvocation)
-                //{
-                    if (element.Declaration.Tokens.First.Value.Text != "this")
-                    {
-                        this.AddViolation(element, Rules.UseClassNameOrThis, element.Declaration.Name);
-                    }
-                    /*for (Node<CsToken> node = element.Tokens.First; node != null; node = node.Next)
-                    {
-                        if (node.Value.Text != "this")
-                        {
-                            this.AddViolation(element, Rules.UseClassNameOrThis, element.Declaration.Name);
-                        }
-                    }*/
-                //}
+                this.AddViolation(element, Rules.UseClassNameOrThis, element.Declaration.Name);
             }
+            //if (!element.Generated && this.IsLocalElementType(element.ElementType)
+            //    && !element.Declaration.ContainsModifier(new CsTokenType[] { CsTokenType.Static, CsTokenType.Const }))
+            //{
+            //    //Expression expression = element.FindParentExpression();
+            //    //if (expression != null && expression.ExpressionType == ExpressionType.MemberAccess || expression.ExpressionType == ExpressionType.MethodInvocation)
+            //    //{
+            //        if (element.Declaration.Tokens.First.Value.Text != "this")
+            //        {
+            //            this.AddViolation(element, Rules.UseClassNameOrThis, element.Declaration.Name);
+            //        }
+            //        /*for (Node<CsToken> node = element.Tokens.First; node != null; node = node.Next)
+            //        {
+            //            if (node.Value.Text != "this")
+            //            {
+            //                this.AddViolation(element, Rules.UseClassNameOrThis, element.Declaration.Name);
+            //            }
+            //        }*/
+            //    //}
+            //}
 
             //if (!element.Generated)
             //{
@@ -172,10 +183,28 @@
         /// Checks the rule: Don't use linq aliases.
         /// </summary>
         /// <param name="element">The C# element.</param>
-        private void CheckDoNotUseLinqAliases(CsElement element)
+        /// <param name="expression">The expression.</param>
+        private void CheckDoNotUseLinqAliases(CsElement element, Expression expression)
         {
-        }
+            if (!element.Generated)
+            {
+                List<CsTokenType> linqAliases = new List<CsTokenType>()
+                {
+                    CsTokenType.Select, CsTokenType.From, CsTokenType.Ascending, 
+                    CsTokenType.Descending, CsTokenType.In, CsTokenType.Into, CsTokenType.Join,
+                    CsTokenType.Let, CsTokenType.OrderBy, CsTokenType.Where
+                };
 
+                foreach (CsToken token in expression.Tokens)
+                {
+                    if (linqAliases.Contains(token.CsTokenType))
+                    {
+                        this.AddViolation(element, Rules.DoNotUseLinqAliases);
+                    }
+                }
+            }
+        }
+        
         /// <summary>
         /// Checks the rule: minimum fiels length should be 3 symbols.
         /// </summary>
@@ -183,7 +212,7 @@
         private void CheckMinimumFieldLength(CsElement element)
         {
             const Int32 minAllowedLength = 2;
-
+            
             if (!element.Generated 
                 && this.IsSupportedForMinLengthElementType(element.ElementType) 
                 && element.Declaration.Name.Length < minAllowedLength)
