@@ -23,6 +23,11 @@
         /// <summary>
         /// This StyleCop rule makes sure that instance variables are minimum length.
         /// </summary>
-        MinimumFieldLength
+        MinimumFieldLength,
+
+        /// <summary>
+        /// Enforces the don't use of the built-in types.
+        /// </summary>
+        DoNotUseBuiltInTypeAliases
     }
 }

@@ -20,5 +20,9 @@
             <Context>Minimum fiels length should be 2 symbols: {0}.</Context>
             <Description>Not allowed very short names for fields.</Description>
         </Rule>
+        <Rule Name="DoNotUseBuiltInTypeAliases" CheckId="RW0005">
+            <Context>Use {0} or {1} rather than the built-in type alias '{2}'.</Context>
+            <Description>Enforces the don't use of the built-in types.</Description>
+        </Rule>
     </Rules>
 </SourceAnalyzer>
