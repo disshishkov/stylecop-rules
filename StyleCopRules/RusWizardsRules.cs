@@ -6,7 +6,7 @@
     using System.Collections.Generic;
 
     /// <summary>
-    /// This StyleCop Rule makes sure that instance variables are prefixed with an underscore.
+    /// Represents of Rus Wizards custom StyleCop rules.
     /// </summary>
     [SourceAnalyzer(typeof(CsParser))]
     public sealed class RusWizardsRules : SourceAnalyzer
@@ -42,45 +42,33 @@
         /// </summary>
         /// <param name="document">The document.</param>
         public override void AnalyzeDocument(CodeDocument document)
-        {            
+        {
             CsDocument csDocument = (CsDocument)document;
             if (csDocument.RootElement != null && !csDocument.RootElement.Generated)
             {
-                csDocument.WalkDocument<Object>(new CodeWalkerElementVisitor<Object>(this.ProcessElement), null, new CodeWalkerExpressionVisitor<Object>(this.ProcessExpression), null);
+                csDocument.WalkDocument<Object>(
+                    new CodeWalkerElementVisitor<Object>(this.ProcessElement),
+                    null, 
+                    new CodeWalkerExpressionVisitor<Object>(this.ProcessExpression), 
+                    null);
 
                 this.IterateTokenList(csDocument);
-                //this.ProcessElement(csDocument.RootElement);                
             }
         }
 
+        /// <summary>
+        /// Processes the expression.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <param name="parentExpression">The parent expression.</param>
+        /// <param name="parentStatement">The parent statement.</param>
+        /// <param name="parentElement">The parent element.</param>
+        /// <param name="context">The context.</param>
+        /// <returns>
+        /// <c>True</c> if element was processed; otherwise, <c>false</c>.
+        /// </returns>
         private Boolean ProcessExpression(Expression expression, Expression parentExpression, Statement parentStatement, CsElement parentElement, Object context)
         {
-            //if (!parentElement.Generated && this.IsLocalElementType(parentElement.ElementType) 
-            //    /*&& parentStatement.StatementType == StatementType.Expression*/
-            //    && ((expression.ExpressionType == ExpressionType.Literal && parentStatement.StatementType == StatementType.Return)
-            //        || (expression.ExpressionType == ExpressionType.Literal && parentStatement.StatementType == StatementType.Yield))
-            //    && !parentElement.Declaration.ContainsModifier(new CsTokenType[] { CsTokenType.Static, CsTokenType.Const }))
-            //{                
-            //    //if (expression.ExpressionType == ExpressionType.MemberAccess || expression.ExpressionType == ExpressionType.MethodInvocation)
-            //    if (parentExpression == null || parentExpression.ExpressionType != ExpressionType.MemberAccess)
-            //    {
-            //        for (Node<CsToken> node = parentElement.Tokens.First; node != null; node = node.Next)
-            //        {
-            //            if (node.Value.Text != "this")
-            //            {
-            //                this.AddViolation(parentElement, Rules.UseClassNameOrThis, parentElement.Declaration.Name);
-            //            }
-            //        }
-
-            //        /*foreach (CsToken token in expression.Tokens)
-            //        {
-            //            if (token.CsTokenType != CsTokenType.This)
-            //            {
-            //                this.AddViolation(parentElement, Rules.UseClassNameOrThis, parentElement.Declaration.Name);
-            //            }
-            //        }*/
-            //    }
-            //}
             this.CheckDoNotUseLinqAliases(parentElement, expression);
             //this.CheckUseClassNameOrThis(parentElement, expression);
 
@@ -94,15 +82,15 @@
         /// <param name="parentElement">The parent element.</param>
         /// <param name="context">The context.</param>
         /// <returns>
-        ///  <c>True</c> if element was processed; otherwise, <c>false</c>.
+        /// <c>True</c> if element was processed; otherwise, <c>false</c>.
         /// </returns>
         private Boolean ProcessElement(CsElement element, CsElement parentElement, Object context)
         {
             if (this.Cancel)
             {
                 return false;
-            }                        
-            
+            }
+
             this.CheckInstanceVariablesUnderscorePrefix(element);
             this.CheckMinimumFieldLength(element);
 
@@ -153,8 +141,8 @@
         /// <param name="expression">The expression.</param>
         private void CheckUseClassNameOrThis(CsElement element, Expression expression)
         {
-            if (!element.Generated 
-                && (expression.ExpressionType == ExpressionType.MemberAccess || expression.ExpressionType == ExpressionType.MethodInvocation) 
+            if (!element.Generated
+                && (expression.ExpressionType == ExpressionType.MemberAccess || expression.ExpressionType == ExpressionType.MethodInvocation)
                 && expression.Tokens.First.Value.CsTokenType != CsTokenType.This)
             {
                 this.AddViolation(element, Rules.UseClassNameOrThis, element.Declaration.Name);
@@ -232,7 +220,7 @@
                 }
             }
         }
-        
+
         /// <summary>
         /// Checks the rule: minimum fiels length should be 3 symbols.
         /// </summary>
@@ -240,9 +228,9 @@
         private void CheckMinimumFieldLength(CsElement element)
         {
             const Int32 minAllowedLength = 2;
-            
-            if (!element.Generated 
-                && this.IsSupportedForMinLengthElementType(element.ElementType) 
+
+            if (!element.Generated
+                && this.IsSupportedForMinLengthElementType(element.ElementType)
                 && element.Declaration.Name.Length < minAllowedLength)
             {
                 this.AddViolation(element, Rules.MinimumFieldLength, element.Declaration.Name);
@@ -258,7 +246,7 @@
         /// </returns>
         private Boolean IsSupportedForMinLengthElementType(ElementType type)
         {
-            return (type == ElementType.Class || type == ElementType.Delegate || type == ElementType.Enum 
+            return (type == ElementType.Class || type == ElementType.Delegate || type == ElementType.Enum
                 || type == ElementType.Event || type == ElementType.Field || type == ElementType.Interface || type == ElementType.Method
                 || type == ElementType.Namespace || type == ElementType.Property || type == ElementType.Struct);
         }
@@ -288,9 +276,9 @@
         /// <param name="document">The parent document.</param>
         private void CheckBuiltInType(Node<CsToken> type, CsDocument document)
         {
-            TypeToken typeToken = (TypeToken)type.Value;
+            TypeToken typeToken = (TypeToken)type.Value;                  
 
-            if (typeToken.CsTokenClass != CsTokenClass.GenericType && typeToken.CsTokenType != CsTokenType.Enum)
+            if (typeToken.CsTokenClass != CsTokenClass.GenericType)
             {
                 for (Int32 i = 0; i < this._builtInTypes.Length; i++)
                 {
@@ -298,26 +286,34 @@
 
                     if (CsTokenList.MatchTokens(typeToken.ChildTokens.First, builtInType[2]))
                     {
-                        // If the previous token is an equals sign, then this is a using alias directive. For example:
-                        // using SomeAlias = System.String;
-                        Boolean usingAliasDirective = false;
+                        Boolean isEnumType = false;
+
+                        // If the previous token is an equals sign, then this is a using alias directive.                         
+                        // For example: using SomeAlias = System.String;
+                        Boolean isUsingAliasDirective = false;
                         for (Node<CsToken> previous = type.Previous; previous != null; previous = previous.Previous)
                         {
-                            if (previous.Value.CsTokenType != CsTokenType.EndOfLine 
-                                && previous.Value.CsTokenType != CsTokenType.MultiLineComment 
-                                && previous.Value.CsTokenType != CsTokenType.SingleLineComment 
+                            if (previous.Value.CsTokenType != CsTokenType.EndOfLine
+                                && previous.Value.CsTokenType != CsTokenType.MultiLineComment
+                                && previous.Value.CsTokenType != CsTokenType.SingleLineComment
                                 && previous.Value.CsTokenType != CsTokenType.WhiteSpace)
                             {
                                 if (previous.Value.Text == "=")
                                 {
-                                    usingAliasDirective = true;
+                                    isUsingAliasDirective = true;
+                                }
+
+                                // Check on the enum.
+                                if (previous.Value.Text == ":")
+                                {
+                                    isEnumType = true;
                                 }
 
                                 break;
                             }
                         }
 
-                        if (!usingAliasDirective)
+                        if (!isUsingAliasDirective && !isEnumType)
                         {
                             this.AddViolation(
                                 typeToken.FindParentElement(),
