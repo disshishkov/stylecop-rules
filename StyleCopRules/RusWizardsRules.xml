@@ -8,9 +8,9 @@
             <Context>Instance variables should be prefixed by underscore and folloed by lower case: {0}.</Context>
             <Description>Instance variables are easier to distinguish when prefixed with an underscore.</Description>
         </Rule>
-        <Rule Name="UseClassNameOrThis" CheckId="RW0002">
-            <Context>Instance variables should be started by class name or "this": {0}.</Context>
-            <Description>For better intellesecne instance variables shuld be started by class name or "this".</Description>
+        <Rule Name="UseThisPrefix" CheckId="RW0002">
+            <Context>Instance variables and methods should be started by "this": {0}.</Context>
+            <Description>For better intellesecne instance variables and methods shuld be started by "this".</Description>
         </Rule>
         <Rule Name="DoNotUseLinqAliases" CheckId="RW0003">
             <Context>Don't use linq aliases.</Context>
