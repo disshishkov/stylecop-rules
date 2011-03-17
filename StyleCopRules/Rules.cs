@@ -11,11 +11,6 @@
         InstanceVariablesUnderscorePrefix,
 
         /// <summary>
-        /// This StyleCop rule makes sure that instance variables are class name or this.
-        /// </summary>
-        UseThisPrefix,
-
-        /// <summary>
         /// This StyleCop rule not be allowed use linq aliases.
         /// </summary>
         DoNotUseLinqAliases,
