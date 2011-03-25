@@ -1,8 +1,8 @@
 ﻿namespace StyleCopRules
 {
     using System;
-    using Microsoft.StyleCop;
-    using Microsoft.StyleCop.CSharp;
+    using StyleCop;
+    using StyleCop.CSharp;
     using System.Collections.Generic;
 
     /// <summary>
