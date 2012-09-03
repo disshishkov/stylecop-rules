@@ -6,10 +6,10 @@
     using System.Collections.Generic;
 
     /// <summary>
-    /// Represents of Rus Wizards custom StyleCop rules.
+    /// Represents of the custom StyleCop rules.
     /// </summary>
     [SourceAnalyzer(typeof(CsParser))]
-    public sealed class RusWizardsRules : SourceAnalyzer
+    public sealed class CustomRules : SourceAnalyzer
     {
         #region Private Static Constants
 
@@ -46,11 +46,7 @@
             CsDocument csDocument = (CsDocument)document;
             if (csDocument.RootElement != null && !csDocument.RootElement.Generated)
             {
-                csDocument.WalkDocument<Object>(
-                    new CodeWalkerElementVisitor<Object>(this.ProcessElement),
-                    null,
-                    new CodeWalkerExpressionVisitor<Object>(this.ProcessExpression),
-                    null);                
+                csDocument.WalkDocument<Object>(this.ProcessElement, null, this.ProcessExpression, null);                
 
                 this.IterateTokenList(csDocument);
             }
@@ -212,7 +208,7 @@
                 if (token.CsTokenClass == CsTokenClass.Type || token.CsTokenClass == CsTokenClass.GenericType)
                 {
                     // Check that the type is using the built-in types, if applicable.
-                    this.CheckBuiltInType(tokenNode, document);
+                    this.CheckBuiltInType(tokenNode);
                 }
             }
         }
@@ -221,17 +217,14 @@
         /// Checks a type to determine whether it should use one of the built-in types.
         /// </summary>
         /// <param name="type">The type to check.</param>
-        /// <param name="document">The parent document.</param>
-        private void CheckBuiltInType(Node<CsToken> type, CsDocument document)
+        private void CheckBuiltInType(Node<CsToken> type)
         {
             TypeToken typeToken = (TypeToken)type.Value;
 
             if (typeToken.CsTokenClass != CsTokenClass.GenericType)
             {
-                for (Int32 i = 0; i < this._builtInTypes.Length; i++)
+                foreach (String[] builtInType in this._builtInTypes)
                 {
-                    String[] builtInType = this._builtInTypes[i];
-
                     if (CsTokenList.MatchTokens(typeToken.ChildTokens.First, builtInType[2]))
                     {
                         Boolean isEnumType = false;
@@ -282,7 +275,7 @@
                 if (childToken.Value.CsTokenClass == CsTokenClass.Type
                     || childToken.Value.CsTokenClass == CsTokenClass.GenericType)
                 {
-                    this.CheckBuiltInType(childToken, document);
+                    this.CheckBuiltInType(childToken);
                 }
             }
         }

@@ -38,17 +38,14 @@
     <Reference Include="StyleCop.CSharp">
       <HintPath>References\StyleCop.CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RusWizardsRules.cs" />
+    <Compile Include="CustomRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rules.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="RusWizardsRules.xml">
+    <EmbeddedResource Include="CustomRules.xml">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>

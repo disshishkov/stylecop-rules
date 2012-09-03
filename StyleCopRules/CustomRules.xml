@@ -1,22 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<SourceAnalyzer Name="Rus Wizards C# Rules">
+<SourceAnalyzer Name="VelocityMarkets C# Rules">
     <Description>
-        These custom rules provide extensions to the ones provided with StyleCop by Rus Wizards company.
+        These custom rules provide extensions to the ones provided with StyleCop.
     </Description>
     <Rules>
-        <Rule Name="InstanceVariablesUnderscorePrefix" CheckId="RW0001">
+        <Rule Name="InstanceVariablesUnderscorePrefix" CheckId="VM0001">
             <Context>Instance variables should be prefixed by underscore and folloed by lower case: {0}.</Context>
             <Description>Instance variables are easier to distinguish when prefixed with an underscore.</Description>
         </Rule>
-        <Rule Name="DoNotUseLinqAliases" CheckId="RW0002">
+        <Rule Name="DoNotUseLinqAliases" CheckId="VM0002">
             <Context>Don't use linq aliases.</Context>
             <Description>Linq aliases cann't resolve all necessitis and make worse a code-view.</Description>
         </Rule>
-        <Rule Name="MinimumFieldLength" CheckId="RW0003">
+        <Rule Name="MinimumFieldLength" CheckId="VM0003">
             <Context>Minimum fiels length should be 2 symbols: {0}.</Context>
             <Description>Not allowed very short names for fields.</Description>
         </Rule>
-        <Rule Name="DoNotUseBuiltInTypeAliases" CheckId="RW0004">
+        <Rule Name="DoNotUseBuiltInTypeAliases" CheckId="VM0004">
             <Context>Use {0} or {1} rather than the built-in type alias '{2}'.</Context>
             <Description>Enforces the don't use of the built-in types.</Description>
         </Rule>
